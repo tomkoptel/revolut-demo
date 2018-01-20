@@ -6,4 +6,8 @@ package com.tom.personal.revolut.domain
  */
 data class Conversion(val currency: String, private val result: Double) {
     fun toHumanFormat(): String = "%.2f".format(result)
+
+    override fun toString(): String {
+        return "Conversion(currency=$currency, result=${toHumanFormat()})"
+    }
 }

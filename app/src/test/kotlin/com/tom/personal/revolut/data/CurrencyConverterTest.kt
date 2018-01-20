@@ -2,22 +2,21 @@ package com.tom.personal.revolut.data
 
 import com.tom.personal.revolut.domain.Conversion
 import com.tom.personal.revolut.domain.ConversionRequest
-import com.tom.personal.revolut.domain.CurrencyTable
+import com.tom.personal.revolut.domain.reduceRatesToConversions
 import org.amshove.kluent.shouldContain
 import org.junit.Test
+import java.util.*
 
 /**
  * @author Tom Koptel: tom.koptel@showmax.com
  * @since 1/20/18
  */
-class CurrencyTableTest {
-    private val table = CurrencyTable(
-        mapOf(
-            "EUR" to 1.0,
-            "UAH" to 35.43,
-            "CZK" to 25.39,
-            "RUB" to 69.32
-        )
+class CurrencyConverterTest {
+    private val currencies = mapOf(
+        "EUR" to 1.0,
+        "UAH" to 35.43,
+        "CZK" to 25.39,
+        "RUB" to 69.32
     )
 
     @Test
@@ -40,8 +39,11 @@ class CurrencyTableTest {
         conversions shouldContain ("RUB" to "6932.00")
     }
 
-    private fun performConversion(requestedCurrency: String, value: Double) =
-        toFriendlyFormat(table.convert(ConversionRequest(requestedCurrency, value)))
+    private fun performConversion(requestedCurrency: String, value: Double): List<Pair<String, String>> {
+        val rates = Rates("EUR", Date(), currencies)
+        val request = ConversionRequest(requestedCurrency, value)
+        return toFriendlyFormat(reduceRatesToConversions(rates, request))
+    }
 
     private fun toFriendlyFormat(conversions: List<Conversion>) =
         conversions.map { conversion -> conversion.currency to conversion.toHumanFormat() }
