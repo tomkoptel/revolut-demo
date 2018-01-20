@@ -11,6 +11,7 @@ import org.junit.Rule
 import org.junit.Test
 import java.io.File
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -22,6 +23,10 @@ class RevolutServiceTest {
         set(Calendar.YEAR, 2018)
         set(Calendar.MONTH, Calendar.JANUARY)
         set(Calendar.DAY_OF_MONTH, 19)
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
         time
     }
     @Rule @JvmField val mockWebServer = MockWebServer()
@@ -38,12 +43,16 @@ class RevolutServiceTest {
     fun test_end2end_happy_path() {
         mockWebServer.enqueue(happyResponse())
 
-        val actual = service.latest("EUR").execute().body()!!
-
-        with(actual) {
-            date shouldEqual _2018_01_19
-            base shouldEqual "EUR"
-            values shouldNotBe emptyMap<String, Double>()
+        service.latest("EUR").test().let {
+            it.awaitTerminalEvent(1, TimeUnit.SECONDS)
+            it.assertValue {
+                with(it) {
+                    date shouldEqual _2018_01_19
+                    base shouldEqual "EUR"
+                    values shouldNotBe emptyMap<String, Double>()
+                }
+                true
+            }
         }
     }
 
