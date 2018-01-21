@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity(), ConversionViewPage {
 
         adapter = ConversionAdapter()
         list.also {
+            it.setHasFixedSize(true)
             it.layoutManager = LinearLayoutManager(this)
             it.itemAnimator = DefaultItemAnimator()
             it.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))

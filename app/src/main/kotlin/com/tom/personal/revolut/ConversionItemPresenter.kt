@@ -17,16 +17,11 @@ class ConversionItemPresenter(private val viewModel: CurrenciesViewModel) {
     private val disposables = CompositeDisposable()
     private var view: ConversionViewItem? = null
 
-    class Controller {
-        private val presenterPool = mutableListOf<ConversionItemPresenter>()
-
+    companion object Factory {
         fun create(context: Context) =
             ViewModelProviders.of(context as AppCompatActivity, CurrenciesViewModel.Factory)
                 .get(CurrenciesViewModel::class.java)
                 .let { ConversionItemPresenter(it) }
-                .apply { presenterPool.add(this) }
-
-        fun release() = presenterPool.forEach { it.detach() }
     }
 
     fun reattach(view: ConversionViewItem) {
