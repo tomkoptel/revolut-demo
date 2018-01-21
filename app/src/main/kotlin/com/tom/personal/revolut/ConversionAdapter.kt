@@ -11,8 +11,6 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.tom.personal.revolut.domain.Conversion
 import com.tom.personal.revolut.domain.ConversionRequest
 import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.simple_item.view.*
 
 /**
@@ -50,51 +48,45 @@ class ConversionAdapter : RecyclerView.Adapter<ConversionAdapter.ViewItemHolder>
     class ViewItemHolder(
         view: View,
         private val itemPresenter: ConversionItemPresenter
-    ) : RecyclerView.ViewHolder(view), ConversionViewItem {
+    ) : RecyclerView.ViewHolder(view) {
         private val txtField: TextView = view.txtField
         private val editText: EditText = view.editField
-        private var currentConversion: Conversion? = null
 
-        private val disposables = CompositeDisposable()
-        private val focusEvents: PublishSubject<Boolean> = PublishSubject.create()
+        // Lets keep our listener events multicasted, with always latest item replayed to subscriber
+        private val focusEvents = RxView.focusChanges(editText)
+            .replay(1)
+            .refCount()
+        private val textChanges = RxTextView.textChanges(editText)
+            .map { it.toString() }
+            .filter { !it.isEmpty() }
+            .replay(1)
+            .refCount()
 
         fun bind(conversion: Conversion) {
-            currentConversion = conversion
-            updateUI(conversion)
-            itemPresenter.reattach(this, conversion.currency)
-
-            RxView.focusChanges(editText).subscribe(focusEvents::onNext)
-                .apply { disposables.add(this) }
+            editText.isEnabled = (layoutPosition == 0)
+            updateConversion(conversion)
+            itemPresenter.reattach(ItemView(conversion.currency))
         }
 
-        override fun onFocusChanges(): Observable<Boolean> {
-            return focusEvents
-        }
-
-        override fun onConversionRequest(): Observable<ConversionRequest> {
-            val conversion = currentConversion
-            return if (conversion == null) {
-                Observable.empty<ConversionRequest>()
-            } else {
-                RxTextView.textChanges(editText)
-                    .map { it.toString() }
-                    .filter { !it.isEmpty() }
-                    .map { it.toDouble() }
-                    .map { ConversionRequest(conversion.currency, it) }
-            }
-        }
-
-        override fun render(state: ConversionViewItem.State) {
-            when (state) {
-                is ConversionViewItem.State.Update -> {
-                    updateUI(state.conversion)
-                }
-            }
-        }
-
-        private fun updateUI(conversion: Conversion) {
+        private fun updateConversion(conversion: Conversion) {
             txtField.text = conversion.currency
             editText.setText(conversion.toHumanFormat())
+        }
+
+        inner class ItemView(private val currency: String) : ConversionViewItem {
+            override fun getCurrency(): String = currency
+
+            override fun onConversionRequest(): Observable<ConversionRequest> {
+                return textChanges.map { ConversionRequest(currency, it.toDouble()) }
+            }
+
+            override fun onFocusChanges(): Observable<Boolean> {
+                return focusEvents
+            }
+
+            override fun render(state: ConversionViewItem.State) = when (state) {
+                is ConversionViewItem.State.Update -> updateConversion(state.value)
+            }
         }
     }
 }

@@ -4,7 +4,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import com.tom.personal.revolut.ext.log
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -30,7 +29,7 @@ class ConversionItemPresenter(private val viewModel: CurrenciesViewModel) {
         fun release() = presenterPool.forEach { it.detach() }
     }
 
-    fun reattach(view: ConversionViewItem, currency: String) {
+    fun reattach(view: ConversionViewItem) {
         disposables.clear()
         this.view = view
 
@@ -48,13 +47,13 @@ class ConversionItemPresenter(private val viewModel: CurrenciesViewModel) {
             )
             .apply { disposables.add(this) }
 
+        val currency = view.getCurrency()
         view.onFocusChanges()
             .switchMap { focused ->
                 if (focused) {
                     Observable.empty()
                 } else {
-                    viewModel.onConversionChange(currency)
-                        .subscribeOn(Schedulers.io())
+                    viewModel.onConversionChange(currency).subscribeOn(Schedulers.io())
                 }
             }
             .map { ConversionViewItem.State.Update(it) }

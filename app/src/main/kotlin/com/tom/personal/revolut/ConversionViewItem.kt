@@ -9,11 +9,12 @@ import io.reactivex.Observable
  * @since 1/21/18
  */
 interface ConversionViewItem {
+    fun getCurrency(): String
     fun onConversionRequest(): Observable<ConversionRequest>
     fun onFocusChanges(): Observable<Boolean>
     fun render(state: State)
 
     sealed class State {
-        class Update(val conversion: Conversion) : State()
+        class Update(val value: Conversion) : State()
     }
 }
