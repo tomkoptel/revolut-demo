@@ -5,6 +5,7 @@ import com.tom.personal.revolut.data.Rates
 import com.tom.personal.revolut.data.RevolutService
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 
@@ -17,7 +18,7 @@ class ConversionModel {
     private val subject = BehaviorSubject.create<Rates>().toSerialized()
 
     val disposable: Disposable = Observable.interval(1, TimeUnit.SECONDS)
-        .switchMap { api.latest("EUR").toObservable() }
+        .switchMap { api.latest("EUR").toObservable().subscribeOn(Schedulers.io()) }
         .distinctUntilChanged()
         .subscribe(subject::onNext, { Log.e("REVOLUT", "ConversionModel crashed", it) })
 

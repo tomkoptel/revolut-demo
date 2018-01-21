@@ -4,23 +4,18 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
-import android.widget.ArrayAdapter
-import com.jakewharton.rxbinding2.widget.RxTextView
-import com.tom.personal.revolut.domain.Conversion
+import android.support.v7.widget.DefaultItemAnimator
+import android.support.v7.widget.DividerItemDecoration
+import android.support.v7.widget.LinearLayoutManager
 import com.tom.personal.revolut.domain.ConversionRequest
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.Single
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity() {
-    private val disposables = CompositeDisposable()
-
+class MainActivity : AppCompatActivity(), ConversionViewPage {
     private lateinit var viewModel: CurrenciesViewModel
-    private lateinit var adapter: ArrayAdapter<Conversion>
+    private lateinit var presenter: ConversionPagePresenter
+    private lateinit var adapter: ConversionAdapter
 
     private var userValue: Double = DEFAULT_INITIAL_VALUE
     private var userCurrency: String = DEFAULT_CURRENCY
@@ -40,43 +35,42 @@ class MainActivity : AppCompatActivity() {
         }
         setContentView(R.layout.activity_main)
 
-        adapter = ArrayAdapter<Conversion>(this, android.R.layout.simple_list_item_1).apply {
-            list.adapter = this
-        }
         viewModel = ViewModelProviders.of(this, CurrenciesViewModel.Factory)
             .get(CurrenciesViewModel::class.java)
+        presenter = ConversionPagePresenter(viewModel)
+
+        adapter = ConversionAdapter()
+        list.also {
+            it.layoutManager = LinearLayoutManager(this)
+            it.itemAnimator = DefaultItemAnimator()
+            it.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
+            it.adapter = adapter
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        render(requestConversion(userCurrency, userValue))
-        render(viewModel.onConversionChange().subscribeOn(Schedulers.io()))
-
-        RxTextView.afterTextChangeEvents(currencyField)
-            .map { currencyField.text.toString() }
-            .filter { !it.isEmpty() }
-            .map { it.toDouble() }
-            .switchMap { requestConversion("EUR", it) }
-            .let { render(it) }
+        presenter.attach(this)
     }
 
     override fun onStop() {
-        disposables.clear()
+        presenter.detach()
         super.onStop()
     }
 
     override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
         super.onSaveInstanceState(outState, outPersistentState)
-        outState?.putDouble(EXTRA_REQUESTED_CURRENCY, userValue)
+        outState?.apply {
+            putString(EXTRA_REQUESTED_CURRENCY, userCurrency)
+            putDouble(EXTRA_REQUESTED_VALUE, userValue)
+        }
     }
 
-    private fun requestConversion(currency: String, value: Double): Observable<List<Conversion>> =
-        viewModel.onConversionRequest(ConversionRequest(currency, value)).subscribeOn(Schedulers.io())
+    override fun onInitialConversion() = Single.just(ConversionRequest(userCurrency, userValue))
 
-    private fun render(source: Observable<List<Conversion>>) {
-        source
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ items -> adapter.let { it.clear(); it.addAll(items) } }, { Log.e("REVOLUT", "OPS!", it) })
-            .apply { disposables.add(this) }
+    override fun render(state: ConversionViewPage.State) {
+        when (state) {
+            is ConversionViewPage.State.Update -> adapter.addAll(state.conversions)
+        }
     }
 }

@@ -19,19 +19,25 @@ class CurrenciesViewModel : ViewModel() {
     private val model = ConversionModel()
     private var latestRequest = BehaviorSubject.create<ConversionRequest>().toSerialized()
 
-    fun onConversionRequest(request: ConversionRequest): Observable<List<Conversion>> {
+    fun updateRequestedCurrency(request: ConversionRequest) {
+        latestRequest.onNext(request)
+    }
+
+    fun onConversionChange(currency: String): Observable<Conversion> {
+        return Observable.combineLatest(model.onCurrenciesChange(), latestRequest, BiFunction<Rates, ConversionRequest,
+                List<Conversion>> { rates, request ->
+            reduceRatesToConversions(rates, request)
+        })
+            .map { conversions -> conversions.find { it.currency == currency } ?: Conversion.NULL }
+            .skipWhile { it == Conversion.NULL }
+    }
+
+    fun loadConversions(request: ConversionRequest): Observable<List<Conversion>> {
         latestRequest.onNext(request)
 
         return model.onCurrenciesChange()
             .take(1)
             .map { reduceRatesToConversions(it, request) }
-    }
-
-    fun onConversionChange(): Observable<List<Conversion>> {
-        return Observable.combineLatest(model.onCurrenciesChange(), latestRequest, BiFunction<Rates, ConversionRequest,
-                List<Conversion>> { rates, request ->
-            reduceRatesToConversions(rates, request)
-        })
     }
 
     override fun onCleared() = model.disposable.dispose()
