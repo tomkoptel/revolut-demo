@@ -1,13 +1,17 @@
 package com.tom.personal.revolut
 
+import android.net.Uri
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.tom.personal.revolut.domain.Conversion
 import com.tom.personal.revolut.domain.ConversionRequest
+import com.tom.personal.revolut.ext.loadWithCache
+import com.tom.personal.revolut.picasso.PicassoFactory
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.simple_item.view.*
 
@@ -21,6 +25,8 @@ class ConversionViewHolder(
 ) : RecyclerView.ViewHolder(view) {
     private val txtField: TextView = view.txtField
     private val editText: EditText = view.editField
+    private val flagImg: ImageView = view.flagImg
+    private val picasso = PicassoFactory.create(view.context)
 
     // Lets keep our listener events multicasted, with always latest item replayed to subscriber
     private val focusEvents = RxView.focusChanges(editText)
@@ -34,6 +40,10 @@ class ConversionViewHolder(
 
     fun bind(conversion: Conversion) {
         editText.isEnabled = (layoutPosition == 0)
+
+        val flagSource = Uri.parse("https://flag/${conversion.currency}")
+        picasso.loadWithCache(flagSource, flagImg)
+
         updateConversion(conversion)
         itemPresenter.reattach(ItemView(conversion.currency))
     }

@@ -1,0 +1,47 @@
+package com.tom.personal.revolut.data
+
+import android.content.Context
+import com.squareup.moshi.KotlinJsonAdapterFactory
+import com.squareup.moshi.Moshi
+import okhttp3.Cache
+import okhttp3.OkHttpClient
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Query
+import java.io.File
+
+/**
+ * @author Tom Koptel: tom.koptel@showmax.com
+ * @since 1/21/18
+ */
+interface CountryApiService {
+    @GET("/v1/Country/getCountries")
+    fun getCountryMetadata(@Query(value = "pCurrencyCode") currencyCode: String): Call<Country>
+
+    object Factory {
+        fun create(context: Context, baseUrl: String = "http://countryapi.gear.host/"): CountryApiService {
+            val moshiConverter = Moshi.Builder()
+                .add(KotlinJsonAdapterFactory())
+                .build()
+                .let { MoshiConverterFactory.create(it) }
+
+            val cacheSize = 10 * 1024 * 1024 // 20 MiB
+            val cacheDir = File(context.cacheDir, "country").apply { mkdir() }
+            val cache = Cache(cacheDir, cacheSize.toLong())
+
+            val client = OkHttpClient.Builder()
+                .addInterceptor(OneYearCachingEnforcer())
+                .cache(cache)
+                .build()
+            val retrofit = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(moshiConverter)
+                .client(client)
+                .build()
+
+            return retrofit.create(CountryApiService::class.java)
+        }
+    }
+}
