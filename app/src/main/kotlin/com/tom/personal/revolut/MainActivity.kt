@@ -7,8 +7,10 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import com.tom.personal.revolut.domain.ConversionRequest
 import io.reactivex.Single
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -16,6 +18,7 @@ class MainActivity : AppCompatActivity(), ConversionViewPage {
     private lateinit var viewModel: CurrenciesViewModel
     private lateinit var presenter: ConversionPagePresenter
     private lateinit var adapter: ConversionAdapter
+    private lateinit var swapDisposable: Disposable
 
     private var userValue: Double = DEFAULT_INITIAL_VALUE
     private var userCurrency: String = DEFAULT_CURRENCY
@@ -47,6 +50,12 @@ class MainActivity : AppCompatActivity(), ConversionViewPage {
             it.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
             it.adapter = adapter
         }
+
+        swapDisposable = adapter.onViewClicked(list)
+            .subscribe(
+                { adapter.swapFirstItemWith(it.position) },
+                { Log.e("REVOLUT", "Error while clicking on item", it) }
+            )
     }
 
     override fun onStart() {
@@ -55,6 +64,7 @@ class MainActivity : AppCompatActivity(), ConversionViewPage {
     }
 
     override fun onStop() {
+        swapDisposable.dispose()
         presenter.detach()
         super.onStop()
     }
