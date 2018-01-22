@@ -1,6 +1,7 @@
 package com.tom.personal.revolut.data
 
 import android.content.Context
+import com.ncornette.cache.OkCacheControl
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
 import okhttp3.Cache
@@ -11,6 +12,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 /**
  * @author Tom Koptel: tom.koptel@showmax.com
@@ -31,10 +33,12 @@ interface CountryApiService {
             val cacheDir = File(context.cacheDir, "country").apply { mkdir() }
             val cache = Cache(cacheDir, cacheSize.toLong())
 
-            val client = OkHttpClient.Builder()
-                .addInterceptor(OneYearCachingEnforcer())
+            val client = OkCacheControl.on(OkHttpClient.Builder())
+                .overrideServerCachePolicy(30, TimeUnit.MINUTES)
+                .apply()
                 .cache(cache)
                 .build()
+
             val retrofit = Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(moshiConverter)

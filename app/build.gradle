@@ -53,6 +53,7 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retorfitVersion"
     implementation "com.squareup.retrofit2:converter-moshi:$retorfitVersion"
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retorfitVersion"
+    implementation 'com.ncornette.cache:okcache-control:1.1.1'
 
     implementation "com.squareup.moshi:moshi:$moshiVersion"
     implementation "com.squareup.moshi:moshi-kotlin:$moshiVersion"
