@@ -68,7 +68,12 @@ object PicassoFactory {
                     )
                 }
                 val country = response.body()!!
-                return downloader.load(Uri.parse(country.flagUrl), networkPolicy)
+                val flagUrl = country.flagUrl ?: throw Downloader.ResponseException(
+                    "We don't have enough data to load flag",
+                    networkPolicy,
+                    responseCode
+                )
+                return downloader.load(Uri.parse(flagUrl), networkPolicy)
             }
 
             return downloader.load(uri, networkPolicy)

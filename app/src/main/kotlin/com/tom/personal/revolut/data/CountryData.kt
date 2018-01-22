@@ -9,10 +9,9 @@ import com.squareup.moshi.Json
  * @since 1/21/18
  */
 data class Country(@Json(name = "Response") val data: List<CountryData>) {
-    val flagUrl: String
+    val flagUrl: String?
         get() {
-            // FIXME: seems to be not safe, but for the sake of simplicity we ignore it
-            val countryData = data.firstOrNull()!!
+            val countryData = data.firstOrNull() ?: return null
             return countryData.flagUrl
         }
 }
