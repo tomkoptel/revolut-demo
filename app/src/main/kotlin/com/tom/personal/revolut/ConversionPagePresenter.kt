@@ -2,9 +2,9 @@ package com.tom.personal.revolut
 
 import android.content.Context
 import android.net.NetworkInfo
-import android.util.Log
 import com.github.pwittchen.reactivenetwork.library.rx2.ConnectivityPredicate
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
+import com.tom.personal.revolut.ext.logError
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
@@ -59,9 +59,5 @@ class ConversionPagePresenter(
 
     private fun renderState(state: ConversionViewPage.State) {
         this.view?.render(state)
-    }
-
-    private fun logError(error: Throwable) {
-        Log.e("REVOLUT", "Crash in ConversionPagePresenter", error)
     }
 }

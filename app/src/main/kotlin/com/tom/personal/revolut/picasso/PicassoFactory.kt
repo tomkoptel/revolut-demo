@@ -2,12 +2,12 @@ package com.tom.personal.revolut.picasso
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import com.jakewharton.picasso.OkHttp3Downloader
 import com.squareup.picasso.Downloader
 import com.squareup.picasso.Picasso
 import com.tom.personal.revolut.BuildConfig
 import com.tom.personal.revolut.data.CountryApiService
+import com.tom.personal.revolut.ext.logError
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import java.io.File
@@ -36,7 +36,7 @@ object PicassoFactory {
             picassoBuilder
                 .loggingEnabled(true)
                 .indicatorsEnabled(true)
-                .listener { _, _, exception -> Log.e("REVOLUT", "Picasso crashed", exception) }
+                .listener { _, _, exception -> logError(exception) }
         }
 
         return picassoBuilder.build()

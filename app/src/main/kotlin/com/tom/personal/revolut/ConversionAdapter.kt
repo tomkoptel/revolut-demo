@@ -24,7 +24,7 @@ class ConversionAdapter : RecyclerView.Adapter<ConversionViewHolder>() {
         notifyDataSetChanged()
     }
 
-    fun swapFirstItemWith(targetPosition: Int) {
+    fun swapFirstItem(targetPosition: Int) {
         val target = items[targetPosition]
         val first = items.first()
 

@@ -2,11 +2,11 @@ package com.tom.personal.revolut.domain
 
 import android.content.Context
 import android.net.NetworkInfo
-import android.util.Log
 import com.github.pwittchen.reactivenetwork.library.rx2.Connectivity
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import com.tom.personal.revolut.data.Rates
 import com.tom.personal.revolut.data.RevolutService
+import com.tom.personal.revolut.ext.logError
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -60,7 +60,7 @@ class ConversionModel(
                     Observable.empty<Rates>()
                 }
             })
-            .subscribe(subject::onNext, { Log.e("REVOLUT", "ConversionModel crashed", it) })
+            .subscribe(subject::onNext, ::logError)
     }
 
     fun onCurrenciesChange(): Observable<Rates> = subject.hide()

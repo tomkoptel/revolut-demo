@@ -1,7 +1,7 @@
 package com.tom.personal.revolut
 
 import android.content.Context
-import android.util.Log
+import com.tom.personal.revolut.ext.logError
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -64,9 +64,5 @@ class ConversionItemPresenter(private val viewModel: CurrenciesViewModel) {
 
     private fun renderState(state: ConversionViewItem.State) {
         this.view?.render(state)
-    }
-
-    private fun logError(throwable: Throwable) {
-        Log.e("REVOLUT", "Crash in ConversionPresenter", throwable)
     }
 }

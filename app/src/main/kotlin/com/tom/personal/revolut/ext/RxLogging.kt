@@ -20,41 +20,36 @@ inline fun printEvent(tag: String, error: Throwable?) =
         else -> Log.d(tag, "Complete")
     }
 
-inline fun tag() =
-    Thread.currentThread().stackTrace
-        .first { it.fileName.endsWith(".kt") }
-        .let { stack -> "${stack.fileName.removeSuffix(".kt")}::${stack.methodName}:${stack.lineNumber}" }
-
 inline fun <reified T> Single<T>.log(): Single<T> {
-    val tag = tag()
+    val tag = line()
     return doOnEvent { success, error -> printEvent(tag, success, error) }
         .doOnSubscribe { Log.d(tag, "Subscribe") }
         .doOnDispose { Log.d(tag, "Dispose") }
 }
 
 inline fun <reified T> Maybe<T>.log(): Maybe<T> {
-    val tag = tag()
+    val tag = line()
     return doOnEvent { success, error -> printEvent(tag, success, error) }
         .doOnSubscribe { Log.d(tag, "Subscribe") }
         .doOnDispose { Log.d(tag, "Dispose") }
 }
 
 inline fun Completable.log(): Completable {
-    val tag = tag()
+    val tag = line()
     return doOnEvent { printEvent(tag, it) }
         .doOnSubscribe { Log.d(tag, "Subscribe") }
         .doOnDispose { Log.d(tag, "Dispose") }
 }
 
 inline fun <reified T> Observable<T>.log(): Observable<T> {
-    val line = tag()
+    val line = line()
     return doOnEach { Log.d(line, "Each $it") }
         .doOnSubscribe { Log.d(line, "Subscribe") }
         .doOnDispose { Log.d(line, "Dispose") }
 }
 
 inline fun <reified T> Flowable<T>.log(): Flowable<T> {
-    val line = tag()
+    val line = line()
     return doOnEach { Log.d(line, "Each $it") }
         .doOnSubscribe { Log.d(line, "Subscribe") }
         .doOnCancel { Log.d(line, "Cancel") }

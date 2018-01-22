@@ -7,13 +7,14 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.tom.personal.revolut.domain.ConversionRequest
+import com.tom.personal.revolut.ext.logError
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -54,9 +55,10 @@ class MainActivity : AppCompatActivity(), ConversionViewPage {
         }
 
         swapDisposable = adapter.onViewClicked(list)
-            .subscribe(
-                { adapter.swapFirstItemWith(it.position) },
-                { Log.e("REVOLUT", "Error while clicking on item", it) }
+            .map { it.position }
+            .subscribeBy(
+                onNext = { adapter::swapFirstItem },
+                onError = ::logError
             )
     }
 
