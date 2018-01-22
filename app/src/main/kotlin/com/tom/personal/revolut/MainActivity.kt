@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity(), ConversionViewPage {
         swapDisposable = adapter.onViewClicked(list)
             .map { it.position }
             .subscribeBy(
-                onNext = adapter::swapFirstItem,
+                onNext = { adapter.swapFirstItem(it); list.scrollToPosition(0) },
                 onError = ::logError
             )
     }
