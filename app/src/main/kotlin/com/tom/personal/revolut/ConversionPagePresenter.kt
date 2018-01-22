@@ -11,7 +11,11 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * The whole page wide presenter. The responsibility of one to control page global events:
+ * * load first collection of conversion items
+ * * show network related errors
+ *
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/21/18
  */
 class ConversionPagePresenter(
@@ -24,6 +28,7 @@ class ConversionPagePresenter(
     fun attach(view: ConversionViewPage) {
         this.view = view
 
+        // Load items on the page
         view.onInitialConversion()
             .flatMapObservable {
                 conversionModel.loadConversions(it)
@@ -36,6 +41,7 @@ class ConversionPagePresenter(
             .apply { disposables.add(this) }
 
 
+        // If network state changes we make sure to let user know
         ReactiveNetwork.observeNetworkConnectivity(context)
             .filter(ConnectivityPredicate.hasState(NetworkInfo.State.DISCONNECTED))
             .flatMap {

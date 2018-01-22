@@ -13,7 +13,9 @@ import okhttp3.OkHttpClient
 import java.io.File
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * This class encapsulates all the necessary configuration of [Picasso] instance.
+ *
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/21/18
  */
 object PicassoFactory {
@@ -42,6 +44,12 @@ object PicassoFactory {
         return picassoBuilder.build()
     }
 
+    /**
+     * The particular custom implementation of [Downloader] is a cheating :p I was lazy to implement additional data
+     * layer that would fill the missing country metadata. Here I am delegating all the heavy lifting to the [Picasso].
+     * We do request Json from 3-d party API and extract the flag url from it which is used to perform actual work
+     * with [OkHttp3Downloader].
+     */
     private class FlagDownloader(
         private val downloader: Downloader,
         private val countryService: CountryApiService

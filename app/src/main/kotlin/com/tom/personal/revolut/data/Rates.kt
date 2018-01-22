@@ -4,7 +4,9 @@ import com.squareup.moshi.Json
 import java.util.*
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * Data class that represent mapping of response from Revolut currency API.
+ *
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/20/18
  */
 data class Rates(

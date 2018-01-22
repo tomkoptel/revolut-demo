@@ -13,13 +13,16 @@ import retrofit2.http.Query
 import java.util.*
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/20/18
  */
 interface RevolutService {
     @GET("/latest")
     fun latest(@Query("base") currency: String): Single<Result<Rates>>
 
+    /**
+     * Isolates logic of creating Retrofit service. We are trying to cache as much data as possible.
+     */
     object Factory {
         fun create(baseUrl: String = "https://revolut.duckdns.org/"): RevolutService {
             val moshiConverter = Moshi.Builder()
@@ -32,6 +35,7 @@ interface RevolutService {
                 .addConverterFactory(moshiConverter)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build()
+
             return retrofit.create(RevolutService::class.java)
         }
     }

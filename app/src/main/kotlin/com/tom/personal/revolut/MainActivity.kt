@@ -27,6 +27,10 @@ class MainActivity : AppCompatActivity(), ConversionViewPage {
     private var userValue: Double = DEFAULT_INITIAL_VALUE
     private var userCurrency: String = DEFAULT_CURRENCY
 
+    /**
+     * State management related routine. If the activity dies out because of system killing the app, we at least can
+     * restore the latest chosen by user conversion.
+     */
     companion object {
         const val EXTRA_REQUESTED_CURRENCY = "EXTRA_REQUESTED_CURRENCY"
         const val EXTRA_REQUESTED_VALUE = "EXTRA_REQUESTED_VALUE"

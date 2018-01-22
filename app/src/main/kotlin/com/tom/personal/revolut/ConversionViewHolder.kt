@@ -16,7 +16,11 @@ import io.reactivex.Observable
 import kotlinx.android.synthetic.main.simple_item.view.*
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * The key component of UI that is get updated on every 1sec call. The particular view emits changes to the currency
+ * value with a help of RxBinding library. We do listen changes in EditText and emit the value to the shared view
+ * model local singleton.
+ *
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/21/18
  */
 class ConversionViewHolder(
@@ -64,7 +68,7 @@ class ConversionViewHolder(
             return textChanges.map { ConversionRequest(currency, it.toDouble()) }
         }
 
-        override fun onFocusChanges(): Observable<Boolean> {
+        override fun onCurrencyEditTextFocusChanges(): Observable<Boolean> {
             return focusEvents
         }
 

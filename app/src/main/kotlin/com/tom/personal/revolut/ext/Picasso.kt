@@ -6,6 +6,9 @@ import com.squareup.picasso.Callback
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 
+/**
+ * Picasso extension to let us first force cache lookup and only then fallback to the network.
+ */
 fun Picasso.loadWithCache(uri: Uri, target: ImageView) {
     load(uri).networkPolicy(NetworkPolicy.OFFLINE)
         .into(target, object : Callback {

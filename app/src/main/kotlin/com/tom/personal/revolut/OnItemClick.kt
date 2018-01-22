@@ -4,7 +4,9 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * Encapsulates metadata of user clicked item inside [RecyclerView].
+ *
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/21/18
  */
 data class OnItemClick(val view: View, val position: Int) {

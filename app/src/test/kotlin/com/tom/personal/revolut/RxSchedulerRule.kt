@@ -13,7 +13,6 @@ import java.util.concurrent.Callable
 /**
  * JUnit Test Rule which overrides RxJava and Android schedulers for use in unit tests.
  *
- *
  * Source from library: com.github.Plastix.RxSchedulerRule:rx2:1.0.2
  */
 class RxSchedulerRule(private val computationalScheduler: Scheduler =  Schedulers.trampoline()) : TestRule {

@@ -6,6 +6,9 @@ package com.tom.personal.revolut.ext
 import android.util.Log
 import io.reactivex.*
 
+/**
+ * The code is not owned by me. See [the source](https://proandroiddev.com/briefly-about-rxjava-logging-20308b013e6d)
+ */
 inline fun <reified T> printEvent(tag: String, success: T?, error: Throwable?) =
     when {
         success == null && error == null -> Log.d(tag, "Complete") /* Only with Maybe */

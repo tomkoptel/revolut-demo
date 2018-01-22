@@ -8,7 +8,7 @@ import org.junit.Test
 import java.util.*
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/20/18
  */
 class CurrencyConverterTest {

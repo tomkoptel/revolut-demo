@@ -9,9 +9,8 @@ import com.tom.personal.revolut.domain.Conversion
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
-
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/21/18
  */
 class ConversionAdapter : RecyclerView.Adapter<ConversionViewHolder>() {
@@ -24,6 +23,9 @@ class ConversionAdapter : RecyclerView.Adapter<ConversionViewHolder>() {
         notifyDataSetChanged()
     }
 
+    /**
+     * Performs the swapping of items. We pass the position of view we want to put on the first place.
+     */
     fun swapFirstItem(targetPosition: Int) {
         val target = items[targetPosition]
         val first = items.first()
@@ -35,6 +37,10 @@ class ConversionAdapter : RecyclerView.Adapter<ConversionViewHolder>() {
         notifyItemChanged(targetPosition)
     }
 
+    /**
+     * Expose the full data necessary to backtrack click source. [OnItemClick] describes event of user clicking on
+     * [RecyclerView].
+     */
     fun onViewClicked(recyclerView: RecyclerView): Observable<OnItemClick> {
         return clickSubject.hide()
             .map { OnItemClick(it, recyclerView.getChildAdapterPosition(it)) }
@@ -52,6 +58,8 @@ class ConversionAdapter : RecyclerView.Adapter<ConversionViewHolder>() {
         val root = inflater.inflate(R.layout.simple_item, parent, false)
         val conversionViewHolder = ConversionViewHolder(root, presentersController.create(parent.context))
 
+        // Yet another way to delegate view clicks. Code owned by Stackoverflow community
+        // https://stackoverflow.com/questions/44433115/recyclerview-item-click-using-rxjava2-rxbinding-not-working-after-fragment-rep/44840296
         RxView.clicks(root)
             .takeUntil(RxView.detaches(parent))
             .map { root }

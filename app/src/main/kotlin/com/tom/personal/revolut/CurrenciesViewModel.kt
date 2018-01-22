@@ -14,17 +14,26 @@ import io.reactivex.rxkotlin.Observables
 import io.reactivex.subjects.BehaviorSubject
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * The local singleton implemented with a help of Android Architecture component. Connects to our actual model and
+ * performs additional global page state management.
+ *
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/20/18
  */
 class CurrenciesViewModel(appContext: Context) : ViewModel() {
     private val model = ConversionModel.create(appContext)
     private var latestRequest = BehaviorSubject.create<ConversionRequest>().toSerialized()
 
+    /**
+     * Accept conversion requests to ensure we update all our UI edit texts with appropriate conversion rates.
+     */
     fun updateRequestedCurrency(request: ConversionRequest) {
         latestRequest.onNext(request)
     }
 
+    /**
+     * Stream that exposes the most recent conversion rate for the particular currency. Will emit updates every second.
+     */
     fun onConversionChange(currency: String): Observable<Conversion> {
         return Observables.combineLatest(model.onCurrenciesChange(), latestRequest, { rates, request ->
             reduceRatesToConversions(rates, request)
@@ -33,6 +42,9 @@ class CurrenciesViewModel(appContext: Context) : ViewModel() {
             .skipWhile { it == Conversion.NULL }
     }
 
+    /**
+     * Exposes the stream of most recent currency updates.
+     */
     fun loadConversions(request: ConversionRequest): Observable<List<Conversion>> {
         latestRequest.onNext(request)
 

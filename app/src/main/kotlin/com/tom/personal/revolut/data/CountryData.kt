@@ -3,7 +3,9 @@ package com.tom.personal.revolut.data
 import com.squareup.moshi.Json
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * Data classes that represent mapping of country metadata.
+ *
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/21/18
  */
 data class Country(@Json(name = "Response") val data: List<CountryData>) {

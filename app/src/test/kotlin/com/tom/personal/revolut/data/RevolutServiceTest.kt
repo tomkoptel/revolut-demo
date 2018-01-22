@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/20/18
  */
 class RevolutServiceTest {

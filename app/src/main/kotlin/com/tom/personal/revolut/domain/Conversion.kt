@@ -1,10 +1,12 @@
 package com.tom.personal.revolut.domain
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * Represents the conversion Unit association with the latest calculated value.
+ *
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/20/18
  */
-data class Conversion(val currency: String, val result: Double) {
+data class Conversion(val currency: String, private val result: Double) {
     fun toHumanFormat(): String = "%.2f".format(result)
 
     override fun toString(): String {

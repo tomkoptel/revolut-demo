@@ -9,7 +9,7 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/21/18
  */
 class ConversionItemPresenter(private val viewModel: CurrenciesViewModel) {
@@ -24,7 +24,7 @@ class ConversionItemPresenter(private val viewModel: CurrenciesViewModel) {
         disposables.clear()
         this.view = view
 
-        view.onFocusChanges()
+        view.onCurrencyEditTextFocusChanges()
             .switchMap { focused ->
                 if (focused) {
                     view.onConversionRequest()
@@ -39,7 +39,7 @@ class ConversionItemPresenter(private val viewModel: CurrenciesViewModel) {
             .apply { disposables.add(this) }
 
         val currency = view.getCurrency()
-        view.onFocusChanges()
+        view.onCurrencyEditTextFocusChanges()
             .switchMap { focused ->
                 if (focused) {
                     Observable.empty()

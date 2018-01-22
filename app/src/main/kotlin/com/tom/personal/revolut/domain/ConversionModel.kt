@@ -14,7 +14,10 @@ import io.reactivex.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * The core logic of whole implementation. It keeps emitting items until we discover disconnected. All API errors
+ * ignored and consumed. The stream either emits [Rates] objects or waits until the 'healthy' response comes back.
+ *
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/20/18
  */
 class ConversionModel(
@@ -27,16 +30,19 @@ class ConversionModel(
         }
     }
 
+    // We perform multicasting with a help of [BehaviorSubject] that will replay the latest seen value.
     private val subject = BehaviorSubject.create<Rates>().toSerialized()
 
     val disposable: Disposable
 
     init {
+        // Network connectivity drives emissions.
         disposable = connectivityStream.invoke()
             .subscribeOn(Schedulers.io())
             .switchMap({
                 val connected = it.state == NetworkInfo.State.CONNECTED
                 if (connected) {
+                    // We need to defer API observable creation as we combine interval() and startWith() operators
                     val apiCall = Observable.defer {
                         api.latest("EUR").toObservable()
                             .subscribeOn(Schedulers.io())

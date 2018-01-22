@@ -15,13 +15,16 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 /**
- * @author Tom Koptel: tom.koptel@showmax.com
+ * @author Tom Koptel: tom.koptel@gmail.com
  * @since 1/21/18
  */
 interface CountryApiService {
     @GET("/v1/Country/getCountries")
     fun getCountryMetadata(@Query(value = "pCurrencyCode") currencyCode: String): Call<Country>
 
+    /**
+     * Isolates logic of creating Retrofit service. We are trying to cache as much data as possible.
+     */
     object Factory {
         fun create(context: Context, baseUrl: String = "http://countryapi.gear.host/"): CountryApiService {
             val moshiConverter = Moshi.Builder()
