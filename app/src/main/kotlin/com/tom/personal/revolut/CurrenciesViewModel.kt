@@ -39,7 +39,6 @@ class CurrenciesViewModel(appContext: Context) : ViewModel() {
         latestRequest.onNext(request)
 
         return model.onCurrenciesChange()
-            .take(1)
             .map { reduceRatesToConversions(it, request) }
     }
 

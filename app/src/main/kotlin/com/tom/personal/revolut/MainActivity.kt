@@ -1,5 +1,6 @@
 package com.tom.personal.revolut
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
@@ -7,7 +8,10 @@ import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
+import android.view.View
+import android.widget.Toast
 import com.tom.personal.revolut.domain.ConversionRequest
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
@@ -38,7 +42,7 @@ class MainActivity : AppCompatActivity(), ConversionViewPage {
         setContentView(R.layout.activity_main)
 
         viewModel = CurrenciesViewModel.create(this)
-        presenter = ConversionPagePresenter(viewModel)
+        presenter = ConversionPagePresenter(this, viewModel)
 
         adapter = ConversionAdapter()
         list.also {
@@ -55,6 +59,8 @@ class MainActivity : AppCompatActivity(), ConversionViewPage {
                 { Log.e("REVOLUT", "Error while clicking on item", it) }
             )
     }
+
+    override fun isEmpty() = Observable.fromCallable { adapter.itemCount == 0 }
 
     override fun onStart() {
         super.onStart()
@@ -77,9 +83,26 @@ class MainActivity : AppCompatActivity(), ConversionViewPage {
 
     override fun onInitialConversion() = Single.just(ConversionRequest(userCurrency, userValue))
 
+    @SuppressLint("SetTextI18n")
     override fun render(state: ConversionViewPage.State) {
         when (state) {
-            is ConversionViewPage.State.Update -> adapter.addAll(state.conversions)
+            is ConversionViewPage.State.Update -> {
+                progressBar.visibility = View.GONE
+                list.visibility = View.VISIBLE
+                errorTxt.visibility = View.GONE
+
+                adapter.addAll(state.conversions)
+            }
+            is ConversionViewPage.State.ConnectionError -> {
+                progressBar.visibility = View.GONE
+                list.visibility = View.GONE
+                errorTxt.visibility = View.VISIBLE
+
+                errorTxt.text = "Network error. Can not load data!"
+            }
+            is ConversionViewPage.State.ConnectionLost -> {
+                Toast.makeText(this, "Ops... Connection loss!", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
