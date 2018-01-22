@@ -2,8 +2,10 @@ package com.tom.personal.revolut.data
 
 import com.tom.personal.revolut.domain.Conversion
 import com.tom.personal.revolut.domain.ConversionRequest
+import com.tom.personal.revolut.domain.reduceRatesToConversion
 import com.tom.personal.revolut.domain.reduceRatesToConversions
 import org.amshove.kluent.shouldContain
+import org.amshove.kluent.shouldEqual
 import org.junit.Test
 import java.util.*
 
@@ -18,6 +20,15 @@ class CurrencyConverterTest {
         "CZK" to 25.39,
         "RUB" to 69.32
     )
+
+    @Test
+    fun should_produce_conversions_on_non_base_currency2() {
+        val rates = Rates("EUR", Date(), currencies)
+        val request = ConversionRequest("UAH", 100.0)
+
+        val conversion = reduceRatesToConversion(rates, request, "CZK")
+        conversion.toHumanFormat() shouldEqual "71.66"
+    }
 
     @Test
     fun should_produce_conversions_on_non_base_currency() {

@@ -18,3 +18,18 @@ fun reduceRatesToConversions(rates: Rates, request: ConversionRequest): List<Con
     }
     return emptyList()
 }
+
+/**
+ * Performs related conversions on the basis of [ConversionRequest]. Produces current valid conversion rate for
+ * specific currency.
+ */
+fun reduceRatesToConversion(rates: Rates, request: ConversionRequest, requestedCurrency: String): Conversion {
+    val currencies = rates.values.plus(rates.base to 1.0)
+    currencies[request.currency]?.let { conversionRate ->
+        currencies[requestedCurrency]?.let { rate ->
+            val conversionResult = ((rate / conversionRate) * request.value)
+            return Conversion(requestedCurrency, conversionResult)
+        }
+    }
+    return Conversion.NULL
+}

@@ -5,10 +5,7 @@ import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.support.v7.app.AppCompatActivity
-import com.tom.personal.revolut.domain.Conversion
-import com.tom.personal.revolut.domain.ConversionModel
-import com.tom.personal.revolut.domain.ConversionRequest
-import com.tom.personal.revolut.domain.reduceRatesToConversions
+import com.tom.personal.revolut.domain.*
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.subjects.BehaviorSubject
@@ -35,11 +32,9 @@ class CurrenciesViewModel(appContext: Context) : ViewModel() {
      * Stream that exposes the most recent conversion rate for the particular currency. Will emit updates every second.
      */
     fun onConversionChange(currency: String): Observable<Conversion> {
-        return Observables.combineLatest(model.onCurrenciesChange(), latestRequest, { rates, request ->
-            reduceRatesToConversions(rates, request)
-        })
-            .map { conversions -> conversions.find { it.currency == currency } ?: Conversion.NULL }
-            .skipWhile { it == Conversion.NULL }
+        return Observables.combineLatest(model.onCurrenciesChange(), latestRequest) { rates, request ->
+            reduceRatesToConversion(rates, request, currency)
+        }.skipWhile { it == Conversion.NULL }
     }
 
     /**
