@@ -1,6 +1,5 @@
 package com.tom.personal.revolut
 
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
@@ -38,8 +37,7 @@ class MainActivity : AppCompatActivity(), ConversionViewPage {
         }
         setContentView(R.layout.activity_main)
 
-        viewModel = ViewModelProviders.of(this, CurrenciesViewModel.Factory)
-            .get(CurrenciesViewModel::class.java)
+        viewModel = CurrenciesViewModel.create(this)
         presenter = ConversionPagePresenter(viewModel)
 
         adapter = ConversionAdapter()

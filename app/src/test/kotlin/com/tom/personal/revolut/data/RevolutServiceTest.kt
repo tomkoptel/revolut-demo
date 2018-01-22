@@ -46,7 +46,7 @@ class RevolutServiceTest {
         service.latest("EUR").test().let {
             it.awaitTerminalEvent(1, TimeUnit.SECONDS)
             it.assertValue {
-                with(it) {
+                with(it.response()!!.body()!!) {
                     date shouldEqual _2018_01_19
                     base shouldEqual "EUR"
                     values shouldNotBe emptyMap<String, Double>()

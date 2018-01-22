@@ -1,8 +1,6 @@
 package com.tom.personal.revolut
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -18,10 +16,7 @@ class ConversionItemPresenter(private val viewModel: CurrenciesViewModel) {
     private var view: ConversionViewItem? = null
 
     companion object Factory {
-        fun create(context: Context) =
-            ViewModelProviders.of(context as AppCompatActivity, CurrenciesViewModel.Factory)
-                .get(CurrenciesViewModel::class.java)
-                .let { ConversionItemPresenter(it) }
+        fun create(context: Context) = CurrenciesViewModel.create(context).let { ConversionItemPresenter(it) }
     }
 
     fun reattach(view: ConversionViewItem) {

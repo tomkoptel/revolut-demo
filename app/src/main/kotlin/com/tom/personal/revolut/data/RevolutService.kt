@@ -5,6 +5,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
 import io.reactivex.Single
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.Result
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
@@ -17,7 +18,7 @@ import java.util.*
  */
 interface RevolutService {
     @GET("/latest")
-    fun latest(@Query("base") currency: String): Single<Rates>
+    fun latest(@Query("base") currency: String): Single<Result<Rates>>
 
     object Factory {
         fun create(baseUrl: String = "https://revolut.duckdns.org/"): RevolutService {

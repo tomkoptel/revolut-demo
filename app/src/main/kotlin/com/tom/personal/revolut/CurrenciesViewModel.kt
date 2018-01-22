@@ -2,6 +2,9 @@ package com.tom.personal.revolut
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
+import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
+import android.support.v7.app.AppCompatActivity
 import com.tom.personal.revolut.data.Rates
 import com.tom.personal.revolut.domain.Conversion
 import com.tom.personal.revolut.domain.ConversionModel
@@ -15,8 +18,8 @@ import io.reactivex.subjects.BehaviorSubject
  * @author Tom Koptel: tom.koptel@showmax.com
  * @since 1/20/18
  */
-class CurrenciesViewModel : ViewModel() {
-    private val model = ConversionModel()
+class CurrenciesViewModel(appContext: Context) : ViewModel() {
+    private val model = ConversionModel.create(appContext)
     private var latestRequest = BehaviorSubject.create<ConversionRequest>().toSerialized()
 
     fun updateRequestedCurrency(request: ConversionRequest) {
@@ -42,11 +45,17 @@ class CurrenciesViewModel : ViewModel() {
 
     override fun onCleared() = model.disposable.dispose()
 
-    object Factory : ViewModelProvider.Factory {
+    companion object {
+        fun create(context: Context) =
+            ViewModelProviders.of(context as AppCompatActivity, CurrenciesViewModel.Factory(context))
+                .get(CurrenciesViewModel::class.java)
+    }
+
+    private class Factory(private val context: Context) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(CurrenciesViewModel::class.java)) {
-                return CurrenciesViewModel() as T
+                return CurrenciesViewModel(context.applicationContext) as T
             }
             throw IllegalArgumentException("Unknown $modelClass class ")
         }
