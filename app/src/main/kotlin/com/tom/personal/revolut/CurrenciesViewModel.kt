@@ -5,13 +5,12 @@ import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.support.v7.app.AppCompatActivity
-import com.tom.personal.revolut.data.Rates
 import com.tom.personal.revolut.domain.Conversion
 import com.tom.personal.revolut.domain.ConversionModel
 import com.tom.personal.revolut.domain.ConversionRequest
 import com.tom.personal.revolut.domain.reduceRatesToConversions
 import io.reactivex.Observable
-import io.reactivex.functions.BiFunction
+import io.reactivex.rxkotlin.Observables
 import io.reactivex.subjects.BehaviorSubject
 
 /**
@@ -27,8 +26,7 @@ class CurrenciesViewModel(appContext: Context) : ViewModel() {
     }
 
     fun onConversionChange(currency: String): Observable<Conversion> {
-        return Observable.combineLatest(model.onCurrenciesChange(), latestRequest, BiFunction<Rates, ConversionRequest,
-                List<Conversion>> { rates, request ->
+        return Observables.combineLatest(model.onCurrenciesChange(), latestRequest, { rates, request ->
             reduceRatesToConversions(rates, request)
         })
             .map { conversions -> conversions.find { it.currency == currency } ?: Conversion.NULL }
@@ -38,8 +36,7 @@ class CurrenciesViewModel(appContext: Context) : ViewModel() {
     fun loadConversions(request: ConversionRequest): Observable<List<Conversion>> {
         latestRequest.onNext(request)
 
-        return model.onCurrenciesChange()
-            .map { reduceRatesToConversions(it, request) }
+        return model.onCurrenciesChange().map { reduceRatesToConversions(it, request) }
     }
 
     override fun onCleared() = model.disposable.dispose()

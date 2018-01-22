@@ -5,6 +5,7 @@ import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -31,9 +32,9 @@ class ConversionItemPresenter(private val viewModel: CurrenciesViewModel) {
                     Observable.empty()
                 }
             }
-            .subscribe(
-                { viewModel.updateRequestedCurrency(it) },
-                { logError(it) }
+            .subscribeBy(
+                onNext = viewModel::updateRequestedCurrency,
+                onError = ::logError
             )
             .apply { disposables.add(this) }
 
@@ -43,12 +44,16 @@ class ConversionItemPresenter(private val viewModel: CurrenciesViewModel) {
                 if (focused) {
                     Observable.empty()
                 } else {
-                    viewModel.onConversionChange(currency).subscribeOn(Schedulers.io())
+                    viewModel.onConversionChange(currency)
+                        .subscribeOn(Schedulers.io())
                 }
             }
             .map { ConversionViewItem.State.Update(it) }
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ this.view?.render(it) }, { logError(it) })
+            .subscribeBy(
+                onNext = ::renderState,
+                onError = ::logError
+            )
             .apply { disposables.add(this) }
     }
 
@@ -57,5 +62,11 @@ class ConversionItemPresenter(private val viewModel: CurrenciesViewModel) {
         view = null
     }
 
-    private fun logError(throwable: Throwable) = Log.e("REVOLUT", "Crash in ConversionPresenter", throwable)
+    private fun renderState(state: ConversionViewItem.State) {
+        this.view?.render(state)
+    }
+
+    private fun logError(throwable: Throwable) {
+        Log.e("REVOLUT", "Crash in ConversionPresenter", throwable)
+    }
 }
